@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <title>Shell Sort com Quadrados Animados </title>
+  <style>
+    body {
+      background-color: #fff;
+      color: #2b2b2b;
+      font-family: Arial, sans-serif;
+      margin: 0px 280px;
+      padding: 32px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    /* Área de controles */
+    #controls {
+      margin-bottom: 20px;
+      margin-top: 40px;
+    }
+    #controls input {
+      padding: 12px 4px;
+      border-radius: 6px;
+      outline: none;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      margin-top: 4px;
+    }
+
+    /* Container principal: deixa o bloco de quadrados e a legenda em coluna */
+    #array-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      border: 2px solid #ccc;
+      background-color: #fff;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    /* Container dos quadrados (wrapper) com altura fixa e padding-top para acomodar a animação */
+    #square-wrapper {
+      position: relative;
+      width: 100%;
+      height: 300px;
+      padding-top: 100px;
+      margin-bottom: 10px;
+    }
+
+    /* Exibição do gap acima da legenda */
+    #gap-info {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 4px;
+      color: #2b2b2b;
+    }
+
+    /* Legenda centralizada abaixo do array */
+    #legend {
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      color: #5c5c5c;
+    }
+
+    /* Estilo dos quadrados */
+    .square {
+      width: 50px;
+      height: 50px;
+      line-height: 50px;
+      text-align: center;
+      background-color: #4caf50;
+      color: #fff;
+      font-weight: bold;
+      position: absolute;
+      border-radius: 4px;
+      transition: left 0.5s ease, top 0.5s ease, background-color 0.3s ease;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .container-add {
+      display: grid;
+      grid-template-columns: 10fr 1fr;
+      gap: 32px;
+      margin: 4px 0px 32px 0px;
+    }
+
+    /* Botões */
+    .container-btns {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .btn-circle {
+      cursor: pointer;
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background-color: #6366F1; /* Indigo-600 */
+      color: #fff;
+      border: none;
+      outline: none;
+      box-shadow: 0px 1px 2px rgba(0,0,0,0.1);
+      transition: background-color 0.2s;
+    }
+    .btn-circle:hover {
+      background-color: #4F46E5; /* Indigo-500 */
+    }
+    /* Botão comum */
+    .btn {
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+    .btn-start {
+      background-color: #eee;
+      color: #333;
+    }
+    .btn-start:hover {
+      background-color: #ddd;
+    }
+    .btn-instant {
+      background-color: #bbf7d0;
+      color: #14532d;
+    }
+    .btn-instant:hover {
+      background-color: #86efac;
+    }
+    .btn-reset {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+    .btn-reset:hover {
+      background-color: #fecaca;
+    }
+
+    /* Estilo para o símbolo exibido */
+    .symbol {
+      position: absolute;
+      font-size: 24px;
+      color: #2b2b2b;
+      font-weight: bold;
+      pointer-events: none;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    /* Slider de velocidade */
+    .speed-control {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 class="font-bold text-2xl">Shell Sort Animation (Fiel ao Algoritmo)</h1>
+  <div id="controls">
+    <span>
+      <label>Digite um número:</label>
+      <div class="container-add">
+        <div class="input-group">
+          <input type="number" id="value-input" />
+        </div>
+        <!-- Botão de adicionar em formato circular com ícone de "+" -->
+        <button id="add-btn" type="submit" class="btn-circle">
+          <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg"
+               viewBox="0 0 448 512" fill="currentColor">
+            <path fill="currentColor"
+              d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32v144H80c-17.7 0-32 14.3-32 32s14.3 32 32 32h144v144c0 17.7 
+                 14.3 32 32 32s32-14.3 32-32V288h144c17.7 0 32-14.3 32-32s-14.3-32-32-32H288V80c0-17.7-14.3-32-32-32z"/>
+          </svg>
+        </button>
+      </div>
+    </span>
+
+    <div class="container-btns">
+      <button id="start-btn" class="btn btn-start">
+        Executar com animação
+      </button>
+      <button id="instant-btn" class="btn btn-instant">
+        Tempo de execução
+      </button>
+      <button id="reset-btn" class="btn btn-reset">
+        Resetar
+      </button>
+    </div>
+
+    <!-- Controle de velocidade -->
+    <div class="speed-control">
+      <label for="speed-slider">Velocidade:</label>
+      <input type="range" id="speed-slider" min="0" max="2000" value="500" />
+      <span id="speed-value">500ms</span>
+    </div>
+  </div>
+
+  <div id="array-container">
+    <div id="square-wrapper"></div>
+    <!-- Div para exibir o gap -->
+    <div id="gap-info"></div>
+    <div id="legend"></div>
+  </div>
+
+  <script>
+    //================================================================================
+    // Variáveis e seletores
+    //================================================================================
+    const container    = document.getElementById("array-container");
+    const squareWrapper = document.getElementById("square-wrapper");
+    const legend       = document.getElementById("legend");
+    const gapInfo      = document.getElementById("gap-info");
+    const addBtn       = document.getElementById("add-btn");
+    const startBtn     = document.getElementById("start-btn");
+    const instantBtn   = document.getElementById("instant-btn");
+    const resetBtn     = document.getElementById("reset-btn");
+    const valueInput   = document.getElementById("value-input");
+    const speedSlider  = document.getElementById("speed-slider");
+    const speedValue   = document.getElementById("speed-value");
+
+    // Parâmetros globais
+    let delay          = Number(speedSlider.value);  // Delay inicial em ms (controlado pelo slider)
+    const squareWidth  = 50;                         // Largura fixa dos quadrados
+    const spacing      = 60;                         // Espaçamento entre os quadrados
+    const MAX_SQUARES  = 14;                         // Limite máximo de números permitidos
+
+    // Array que guarda cada quadrado: { value: número, element: <div> }
+    let squaresData = [];
+
+    //================================================================================
+    // Funções auxiliares
+    //================================================================================
+
+    // Se delay for 0, não há pausa alguma (execução instantânea).
+    function variableSleep(ms) {
+      if (delay === 0) {
+        return Promise.resolve();  // Sem espera
+      } else {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+    }
+
+    // Atualiza a legenda
+    function updateLegend(text) {
+      legend.innerText = text;
+    }
+
+    // Atualiza a exibição do gap
+    function updateGapInfo(gap) {
+      gapInfo.innerText = `H = ${gap}`;
+    }
+
+    // Centraliza os quadrados no wrapper
+    function updatePositions() {
+      const totalWidth = squaresData.length * spacing;
+      const containerWidth = squareWrapper.clientWidth;
+      const offsetX = (containerWidth - totalWidth) / 2;
+      squaresData.forEach((item, index) => {
+        item.element.style.left = offsetX + index * spacing + "px";
+        item.element.style.top  = "100px";
+      });
+    }
+
+    // Cria um novo quadrado com o valor fornecido
+    function addSquare(value) {
+      if (squaresData.length >= MAX_SQUARES) {
+        alert("Limite máximo de 14 números atingido.");
+        return;
+      }
+      const square = document.createElement("div");
+      square.classList.add("square");
+      square.innerText   = value;
+      square.style.left  = squaresData.length * spacing + "px";
+      square.style.top   = "100px";
+
+      squareWrapper.appendChild(square);
+      squaresData.push({ value: Number(value), element: square });
+      updatePositions();
+    }
+
+    //================================================================================
+    // Eventos
+    //================================================================================
+
+    // Botão de adicionar
+    addBtn.addEventListener("click", () => {
+      const value = valueInput.value.trim();
+      if (value === "" || isNaN(value)) {
+        alert("Por favor, digite um número válido.");
+        return;
+      }
+      addSquare(value);
+      valueInput.value = "";
+    });
+
+    // Pressionar Enter para adicionar
+    valueInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        addBtn.click();
+      }
+    });
+
+    // Botão de reset
+    resetBtn.addEventListener("click", () => {
+      squaresData = [];
+      squareWrapper.innerHTML = "";
+      updateLegend("");
+      gapInfo.innerText = "";
+    });
+
+    // Slider de velocidade
+    speedSlider.addEventListener("input", () => {
+      delay = Number(speedSlider.value);
+      speedValue.innerText = (delay === 0) ? "Instantâneo" : `${delay}ms`;
+    });
+
+    //================================================================================
+    // Funções de animação
+    //================================================================================
+
+    // Exibe o símbolo de comparação (">" ou "<") entre dois quadrados
+    async function showComparisonSymbol(midX, text) {
+      // Se delay=0, pule a exibição do símbolo para ficar 100% instantâneo
+      if (delay === 0) return;
+
+      const symbol = document.createElement("div");
+      symbol.classList.add("symbol");
+      symbol.innerText = text;
+
+      // Obtém offsets do square-wrapper
+      const wrapperLeft = squareWrapper.offsetLeft;
+      const wrapperTop  = squareWrapper.offsetTop;
+      
+      // Posiciona o símbolo no container
+      symbol.style.left = (wrapperLeft + midX - 6) + "px";
+      symbol.style.top  = (wrapperTop + 7) + "px";
+
+      container.appendChild(symbol);
+
+      // Pequena animação de fade-in
+      await variableSleep(100);
+      symbol.style.opacity = 1;
+
+      // Metade do delay para manter consistência com a animação
+      await variableSleep(delay / 2);
+
+      // Fade-out
+      symbol.style.opacity = 0;
+      await variableSleep(300); // 300ms para sumir o símbolo
+      symbol.remove();
+    }
+
+    /*
+      Função de animação para comparar dois quadrados (índices i e j).
+      Realiza:
+        1. Atualização da legenda.
+        2. Elevação dos quadrados e alteração de cor.
+        3. Aproximação dos quadrados com exibição do símbolo ("<" ou ">").
+        4. Swap (se necessário) e reposicionamento dos quadrados.
+      Retorna true se ocorreu troca e false caso contrário.
+    */
+    async function animateComparison(i, j) {
+      const leftSquare  = squaresData[i].element;
+      const rightSquare = squaresData[j].element;
+      const leftVal     = squaresData[i].value;
+      const rightVal    = squaresData[j].value;
+
+      // Determina se troca é necessária
+      const swapNeeded = leftVal > rightVal;
+      const symbolText = swapNeeded ? ">" : "<";
+
+      // Atualiza a legenda
+      updateLegend(`Comparando: ${leftVal} ${symbolText} ${rightVal} – ${swapNeeded ? "Troca necessária" : "Ordenado"}`);
+
+      // Eleva os quadrados e muda a cor para indicar comparação
+      const highlightColor = "#777";
+      leftSquare.style.backgroundColor = highlightColor;
+      rightSquare.style.backgroundColor = highlightColor;
+      leftSquare.style.top = "0px";
+      rightSquare.style.top = "0px";
+
+      const originalLeftI = parseFloat(leftSquare.style.left);
+      const originalLeftJ = parseFloat(rightSquare.style.left);
+
+      // Aproxima os quadrados: gap de 10px entre eles
+      const meetingMid   = (originalLeftI + originalLeftJ) / 2;
+      const meetingLeft  = meetingMid - squareWidth - 25;
+      const meetingRight = meetingMid + 25;
+      leftSquare.style.left  = meetingLeft + "px";
+      rightSquare.style.left = meetingRight + "px";
+
+      await variableSleep(delay / 2);
+
+      // Muda a cor para vermelho se houver troca, azul caso contrário
+      const compColor = swapNeeded ? "#e74c3c" : "#3498db";
+      leftSquare.style.backgroundColor  = compColor;
+      rightSquare.style.backgroundColor = compColor;
+
+      // Exibe o símbolo de comparação (somente se delay > 0)
+      const leftSquareLeft  = parseFloat(leftSquare.style.left);
+      const rightSquareLeft = parseFloat(rightSquare.style.left);
+      const meetingGapCenter = (leftSquareLeft + squareWidth + rightSquareLeft) / 2;
+      await showComparisonSymbol(meetingGapCenter, symbolText);
+
+      await variableSleep(delay / 2);
+
+      // Reposiciona os quadrados para a posição final
+      const totalWidth    = squaresData.length * spacing;
+      const containerWidth = squareWrapper.clientWidth;
+      const offsetX       = (containerWidth - totalWidth) / 2;
+      let finalLeft, finalRight;
+      if (swapNeeded) {
+        finalLeft  = offsetX + j * spacing;
+        finalRight = offsetX + i * spacing;
+      } else {
+        finalLeft  = originalLeftI;
+        finalRight = originalLeftJ;
+      }
+      leftSquare.style.left  = finalLeft + "px";
+      rightSquare.style.left = finalRight + "px";
+
+      await variableSleep(delay / 2);
+
+      // Retorna os quadrados à posição base
+      leftSquare.style.top  = "100px";
+      rightSquare.style.top = "100px";
+
+      await variableSleep(delay / 2);
+
+      // Restaura a cor padrão (verde)
+      leftSquare.style.backgroundColor  = "#4caf50";
+      rightSquare.style.backgroundColor = "#4caf50";
+
+      // Se necessário, efetua a troca no array
+      if (swapNeeded) {
+        [squaresData[i], squaresData[j]] = [squaresData[j], squaresData[i]];
+      }
+
+      updatePositions();
+      updateLegend("");
+      await variableSleep(delay / 2);
+
+      return swapNeeded;
+    }
+
+    //================================================================================
+    // Algoritmo Shell Sort
+    //================================================================================
+
+    /*
+      Implementação clássica do Shell Sort, alterada para que:
+        - Cada comparação seja animada (mesmo sem troca).
+        - O loop interno pare se não houver troca.
+    */
+    async function shellSort() {
+      const n = squaresData.length;
+      for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
+        updateGapInfo(gap);
+        for (let i = gap; i < n; i++) {
+          let j = i;
+          while (j >= gap) {
+            const swapOccurred = await animateComparison(j - gap, j);
+            if (!swapOccurred) break;
+            j -= gap;
+          }
+        }
+      }
+      updateLegend("Ordenação completa!");
+      await variableSleep(delay);
+      updateLegend("");
+      alert("Ordenação completa! Os quadrados foram ordenados conforme o Shell Sort clássico.");
+    }
+
+    //================================================================================
+    // Botões: Início da Ordenação (Animação e Instantânea)
+    //================================================================================
+
+    // Botão "Executar com animação"
+    startBtn.addEventListener("click", async () => {
+      if (squaresData.length === 0) {
+        alert("Adicione alguns números antes de começar.");
+        return;
+      }
+      startBtn.disabled   = true;
+      addBtn.disabled     = true;
+      resetBtn.disabled   = true;
+      instantBtn.disabled = true;
+
+      await shellSort();
+
+      startBtn.disabled   = false;
+      addBtn.disabled     = false;
+      resetBtn.disabled   = false;
+      instantBtn.disabled = false;
+    });
+
+    // Botão "Tempo de execução" – executa o Shell Sort sem delay
+    instantBtn.addEventListener("click", async () => {
+      if (squaresData.length === 0) {
+        alert("Adicione alguns números antes de começar.");
+        return;
+      }
+      // Salva o delay atual e zera para execução instantânea
+      const previousDelay = delay;
+      delay = 0;
+
+      startBtn.disabled   = true;
+      addBtn.disabled     = true;
+      resetBtn.disabled   = true;
+      instantBtn.disabled = true;
+      
+      await shellSort();
+
+      // Restaura o delay anterior e ativa os botões
+      delay = previousDelay;
+      startBtn.disabled   = false;
+      addBtn.disabled     = false;
+      resetBtn.disabled   = false;
+      instantBtn.disabled = false;
+    });
+
+    //================================================================================
+    // Inicialização de teste
+    //================================================================================
+    [34, 7, 23, 32, 5, 62].forEach(num => addSquare(num));
+  </script>
+</body>
+</html>
