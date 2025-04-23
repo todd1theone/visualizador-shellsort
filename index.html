@@ -834,7 +834,7 @@
       square.innerText = value;
       square.style.left = squaresData.length * spacing + "px";
       square.style.top = "50%";
-      square.style.transform = "translateY(-50%)";
+      square.style.transform = "translateY(30%)";
 
       squareWrapper.appendChild(square);
       squaresData.push({ value: Number(value), element: square });
@@ -956,7 +956,7 @@
       
       // Posiciona o símbolo no container
       symbol.style.left = (wrapperLeft + midX - 15) + "px";
-      symbol.style.top = (wrapperTop + -18) + "px";
+      symbol.style.top = (wrapperTop - 1) + "%";
 
       container.appendChild(symbol);
 
@@ -1001,8 +1001,8 @@
       const highlightColor = "#777";
       leftSquare.style.backgroundColor = highlightColor;
       rightSquare.style.backgroundColor = highlightColor;
-      leftSquare.style.top = "0px";
-      rightSquare.style.top = "0px";
+      leftSquare.style.top = "20%";
+      rightSquare.style.top = "20%";
 
       const originalLeftI = parseFloat(leftSquare.style.left);
       const originalLeftJ = parseFloat(rightSquare.style.left);
