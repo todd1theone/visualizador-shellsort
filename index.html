@@ -1078,9 +1078,17 @@
         - Cada comparação seja animada (mesmo sem troca).
         - O loop interno pare se não houver troca.
     */
+
+    //Calculo do gap h 
     async function shellSort() {
       const n = squaresData.length;
-      for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
+      // Cálculo inicial do gap pela sequência de Knuth: h = 3*h + 1
+      let gap = 1;
+      while (gap < n) {
+        gap = gap * 3 + 1;
+      }
+      // Reduzindo o gap e executando o Insertion Sort adaptado
+      while (gap > 0) {
         updateGapInfo(gap);
         for (let i = gap; i < n; i++) {
           let j = i;
@@ -1090,6 +1098,7 @@
             j -= gap;
           }
         }
+        gap = Math.floor(gap / 3);
       }
       updateLegend("Ordenação completa!");
       await variableSleep(delay);
